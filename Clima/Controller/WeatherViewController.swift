@@ -8,15 +8,14 @@
 
 import UIKit
 //UITextFieldDelgate är den som tar emot input från iPhone keyboard
-class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManagerDelegate {
+class WeatherViewController: UIViewController {
     
     @IBOutlet weak var conditionImageView: UIImageView!
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var cityLabel: UILabel!
+    @IBOutlet weak var searchTextField: UITextField!
     
     var weatherManager = WeatherManager()
-    
-    @IBOutlet weak var searchTextField: UITextField!
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -24,6 +23,14 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
         searchTextField.delegate = self
     }
     
+    
+}//end class WeatherViewController
+
+
+// MARK: - UITextViewDelegate
+//Before those methods and calling one class in one class. Now we made it in extension instead.
+
+extension WeatherViewController: UITextFieldDelegate {
     //Till search-iconen button
     @IBAction func searchPressed(_ sender: UIButton) {
         searchTextField.endEditing(true) //dölj keyboard efter när user har enter
@@ -56,14 +63,24 @@ class WeatherViewController: UIViewController, UITextFieldDelegate, WeatherManag
         }
         searchTextField.text = ""
     }
-    
+}//end extension WeatherViewController: UITextViewDelegate
+
+// MARK: - WeatherManagerDelegate
+extension WeatherViewController: WeatherManagerDelegate{
     func didUpdateWeather(_ weatherManager: WeatherManager,weather: WeatherModel){
-        print(weather.temperature)
-        
+        //fom chapter 156. It says that it can crash and you need to call this to controll the network and some other data.
+        DispatchQueue.main.async {
+            self.temperatureLabel.text = weather.temperatureString
+            self.conditionImageView.image = UIImage(systemName: weather.conditionName)
+            print(weather.conditionName)
+            self.cityLabel.text = weather.cityName
+        }
     }//end didUpdateWeather
     
     func didFailWithError(error: Error) {
         print(error)
     }
-}
+}//end extension WeatherViewController:WeatherManagerDelegate
+
+
 
